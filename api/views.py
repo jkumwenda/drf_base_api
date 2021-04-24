@@ -1,3 +1,4 @@
-from django.shortcuts import render
-
-# Create your views here.
+from .view_sets.user_view import UserViewSet
+from .view_sets.group_view import GroupViewSet
+from .view_sets.user_log_view import UserLogsViewSet
+from .view_sets.permission_view import PermissionViewSet
