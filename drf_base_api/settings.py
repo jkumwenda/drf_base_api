@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -138,7 +139,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication', 
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.DjangoModelPermissions'
+        'rest_framework.permissions.DjangoModelPermissions',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS':['rest_framework.pagination.PageNumberPagination'],
     'PAGE_SIZE': 2
@@ -152,3 +154,7 @@ EMAIL_PORT = config('EMAIL_PORT', cast=int)
 
 DEFAULT_FROM_EMAIL = 'jkumwenda@gmail.com'
 ADMINS = [('Joel Kumwenda', 'jkumwenda@gmail.com')]
+
+SWAGGER_SETTINGS = {
+    'LOGOUT_URL': '/accounts/logout/'
+}

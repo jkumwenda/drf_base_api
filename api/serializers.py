@@ -5,7 +5,7 @@ from .models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'password', 'email']   
+        fields = ['id','first_name', 'last_name', 'username', 'password', 'email', 'groups']   
 
 class ProfileSerializer(serializers.ModelSerializer):
     users = UserSerializer(read_only=True, many=False)
@@ -26,4 +26,10 @@ class PermissionSerializer(serializers.ModelSerializer):
 class UserLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserLogs
-        fields = '__all__'                              
+        fields = '__all__'  
+
+class UserGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['groups'] 
+        depth = 2                                

@@ -1,7 +1,7 @@
 from .viewset_includes import *
 
 class GroupViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, DjangoModelPermissions)
     queryset = Group.objects.all()
 
     def get_object(self, pk=None):
@@ -11,6 +11,7 @@ class GroupViewSet(viewsets.ViewSet):
             raise Http404 
             
     def list(self, request):
+        Security.secureAccess(self, 'view_group', request)
         paginator = ResponsePaginationHelper()
         results = paginator.paginate_queryset(self.queryset, request)
         serializer = GroupSerializer(results, many=True)
@@ -18,6 +19,7 @@ class GroupViewSet(viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     def create (self, request):
+        Security.secureAccess(self, 'add_group', request)        
         serializer = GroupSerializer(data =  request.data)
         if serializer.is_valid():
             serializer.save()  
@@ -26,6 +28,7 @@ class GroupViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
 
     def update(self, request, pk=None):
+        Security.secureAccess(self, 'change_group', request)        
         group =  self.get_object(pk)  
         serializer = GroupSerializer(group, data = request.data)
         if serializer.is_valid():
@@ -34,12 +37,14 @@ class GroupViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)              
 
     def retrieve(self, request, pk=None):
+        Security.secureAccess(self, 'view_group', request)        
         group = self.get_object(pk)
         serializer = GroupSerializer(group)
         return Response(serializer.data) 
 
 
     def destroy(self, request, pk=None):
+        Security.secureAccess(self, 'delete_group', request)        
         group = self.get_object(pk)
         group.delete()
         UserLogHelper.createLog(request.data, request.method, request.user.id)

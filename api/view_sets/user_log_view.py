@@ -11,6 +11,7 @@ class UserLogsViewSet(viewsets.ViewSet):
             raise Http404 
             
     def list(self, request):
+        Security.secureAccess(self, 'view_userlogs', request)          
         paginator = ResponsePaginationHelper()
         results = paginator.paginate_queryset(self.queryset, request)
         serializer = UserLogSerializer(results, many=True)
