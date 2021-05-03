@@ -5,7 +5,7 @@ from .models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','first_name', 'last_name', 'username', 'password', 'email', 'groups']   
+        fields = ['id','first_name', 'last_name', 'username', 'email', 'groups']   
 
 class ProfileSerializer(serializers.ModelSerializer):
     users = UserSerializer(read_only=True, many=False)
@@ -32,4 +32,9 @@ class UserGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['groups'] 
-        depth = 2                                
+        depth = 2  
+
+class UserPasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['password']                                         

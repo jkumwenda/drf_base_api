@@ -23,6 +23,7 @@ router  = DefaultRouter()
 
 router.register('users', views.UserViewSet, basename = 'Users')
 router.register('register', views.UserRegistrationViewSet, basename = 'User Register')
+router.register('reset_password', views.PasswordResetViewSet, basename = 'Password ')
 router.register('groups', views.GroupViewSet, basename = 'Groups')
 router.register('permissions', views.PermissionViewSet, basename = 'Permissions')
 router.register('user_logs', views.UserLogsViewSet, basename = 'User Logs')

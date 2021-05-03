@@ -29,9 +29,11 @@ class UserViewSet(viewsets.ViewSet):
             user.first_name = request.data['first_name']    
             user.last_name = request.data['last_name']    
             user.username = request.data['username']    
-            user.password = make_password(request.data['password'])    
+            user.password = helper.GeneratePassword.random_password() 
             user.email = request.data['email']
-            user.save() 
+            user.save()
+            helper.AddUserGroups.userGroups(request.data['groups'], user)
+            helper.SendEmail.NewUser(request.data, user.password) 
             UserLogHelper.createLog(request, request.method, request.user.id)
             return Response(serializer.data, status = status.HTTP_201_CREATED)    
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
@@ -50,7 +52,6 @@ class UserViewSet(viewsets.ViewSet):
         user = self.get_object(pk)
         serializer = UserSerializer(user)
         return Response(serializer.data) 
-
 
     def destroy(self, request, pk=None):
         Security.secureAccess(self, 'delete_user', request)        
@@ -76,9 +77,38 @@ class UserRegistrationViewSet(viewsets.ViewSet):
             user.password = make_password(request.data['password'])    
             user.email = request.data['email']
             user.save() 
-            user.groups.add(request.data['groups'][0])
-            # user.groups.add(name='groupname') # add by name
-            helper.SendEmail.UserRegistration(user.username, user.email)
+            helper.AddUserGroups.userGroups(request.data['groups'], user)
+            helper.SendEmail.UserRegistration(user)
             UserLogHelper.createLog(request.data, request.method, request.user.id)
             return Response(serializer.data, status = status.HTTP_201_CREATED)    
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)     
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)   
+
+
+class PasswordResetViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.all()
+
+    def get_object(self, pk=None):
+        try:
+            return User.objects.get(pk = pk)
+        except User.DoesNotExist:
+            raise Http404       
+
+    def list(self, request):
+        Security.secureAccess(self, 'view_user', request)
+        paginator = ResponsePaginationHelper()
+        results = paginator.paginate_queryset(self.queryset, request)
+        serializer = UserPasswordSerializer(results, many=True)
+        UserLogHelper.createLog(request, request.method, request.user.id)
+        return paginator.get_paginated_response(serializer.data)
+
+    def update(self, request, pk=None):
+        Security.secureAccess(self, 'change_user', request)        
+        user =  self.get_object(pk) 
+        serializer = UserPasswordSerializer(user, data = request.data)
+        if serializer.is_valid():
+            user.password = make_password(request.data['password'])
+            user.save()
+            helper.SendEmail.PasswordRest(user)
+            return Response(serializer.data)             
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)                    
